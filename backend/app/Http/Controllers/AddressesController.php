@@ -29,21 +29,24 @@ class AddressesController extends Controller
      */
     public function search(Request $request)
     {
-        $query = $request->input('query');
+        $term = $request->input('term');
 
-        $results = Address::where(function ($queryBuilder) use ($query) {
-            $queryBuilder->where('zip_code', 'LIKE', "%$query%")
-                ->orWhere('street', 'LIKE', "%$query%")
-                ->orWhere('number', 'LIKE', "%$query%")
-                ->orWhere('complement', 'LIKE', "%$query%")
-                ->orWhere('district', 'LIKE', "%$query%")
-                ->orWhere('city', 'LIKE', "%$query%")
-                ->orWhere('uf', 'LIKE', "%$query%");
+        $results = Address::where(function ($query) use ($term) {
+            $query->where('zip_code', 'LIKE', "%$term%")
+                ->orWhere('street', 'LIKE', "%$term%")
+                ->orWhere('number', 'LIKE', "%$term%")
+                ->orWhere('complement', 'LIKE', "%$term%")
+                ->orWhere('district', 'LIKE', "%$term%")
+                ->orWhere('city', 'LIKE', "%$term%")
+                ->orWhere('uf', 'LIKE', "%$term%");
         })->get();
 
-        return response(['status' => 'success', 'data' => $results]);
+        if ($results->isEmpty()) {
+            return response(["status" => "error", "message" => "Nenhum resultado encontrado!"], 404);
+        } else {
+            return response(["status" => "success", "data" => $results], 200);
+        }
     }
-
 
     /**
      * Store a newly created resource in storage.
