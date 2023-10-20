@@ -14,4 +14,4 @@ RUN yarn install
 EXPOSE 8080
 
 # Comando padrão para iniciar o aplicativo Vue.js com yarn serve
-CMD ["yarn", "serve"]
+CMD ["yarn", "dev"]

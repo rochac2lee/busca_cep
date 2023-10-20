@@ -1,6 +1,6 @@
 # frontend
 
-> Busca de endereços
+> Busca de Endereços
 
 ## Build Setup
 
