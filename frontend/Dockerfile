@@ -13,5 +13,5 @@ RUN yarn install
 # Expondo a porta que o aplicativo Vue.js utiliza
 EXPOSE 8080
 
-# Comando padrão para iniciar o aplicativo Vue.js com yarn serve
+# Comando padrão para iniciar o aplicativo Vue.js com yarn dev
 CMD ["yarn", "dev"]
