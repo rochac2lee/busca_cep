@@ -43,11 +43,11 @@ class AddressesController extends Controller
         if ($localAddress) {
             return response(['status' => 'success', 'data' => $localAddress], 200);
         } else {
-            
+
             // Se não encontrado localmente, tente obter o endereço externo
             $externalAddress = $viacep->getAddress($cep);
 
-            if ($externalAddress === false) {
+            if ($externalAddress === false || isset($externalAddress->erro)) {
                 return response(['status' => 'error', 'message' => 'Endereço não encontrado!'], 404);
             }
 
