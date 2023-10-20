@@ -15,5 +15,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['namespace' => 'App\Http\Controllers'], function () {
     Route::get('/addresses/search', 'AddressesController@search');
+    Route::get('/addresses/{cep}', 'AddressesController@search_cep');
     Route::resource("addresses", "AddressesController");
 });
