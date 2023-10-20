@@ -9,6 +9,14 @@ const vuetify = new Vuetify()
 import VueTheMask from 'vue-the-mask'
 Vue.use(VueTheMask)
 
+export const eventbus = new Vue({
+  methods: {
+    toggleSnackbar(snackbarObj) {
+      this.$emit('toggleSnackbar', snackbarObj)
+    },
+  }
+})
+
 import api from './provider/api'
 
 Vue.config.productionTip = false
