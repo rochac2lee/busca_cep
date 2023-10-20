@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+
+  db-buscacep:
+    image: mysql:8.0.29
+    platform: linux/amd64
+    container_name: db-buscacep
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - 3305:3306
+    environment:
+      MYSQL_DATABASE: buscacep
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+    volumes:
+      - ./backend/.docker/mysql:/docker-entrypoint-initdb.d
+    networks:
+      - buscacep
+
+  backend:
+    depends_on:
+      - db-buscacep
+    build:
+      args:
+        user: buscacep
+        uid: 1000
+      context: ./backend
+      dockerfile: Dockerfile
+    image: backend-buscacep
+    container_name: backend-buscacep
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./backend/:/var/www
+    ports:
+      - 8005:8000
+    networks:
+      - buscacep
+      
+networks:
+  buscacep:
+    driver: bridge
