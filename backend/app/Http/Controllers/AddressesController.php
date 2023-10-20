@@ -17,7 +17,7 @@ class AddressesController extends Controller
      */
     public function index()
     {
-        $addresses = Address::cursorPaginate(50);
+        $addresses = Address::get();
 
         return response(['status' => 'success', 'data' => $addresses]);
     }
@@ -41,7 +41,7 @@ class AddressesController extends Controller
         $localAddress = Address::where('zip_code', $cep)->first();
 
         if ($localAddress) {
-            return response(['status' => 'success', 'data' => $localAddress], 200);
+            return response(['status' => 'success', 'data' => [$localAddress]], 200);
         } else {
 
             // Se não encontrado localmente, tente obter o endereço externo
@@ -61,7 +61,7 @@ class AddressesController extends Controller
             $address->uf = $externalAddress->uf;
             $address->save();
 
-            return response(['status' => 'success', 'data' => $address], 200);
+            return response(['status' => 'success', 'data' => [$address]], 200);
         }
     }
 
