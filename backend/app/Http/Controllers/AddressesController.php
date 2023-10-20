@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Models\Address;
+use Illuminate\Validation\ValidationException;
 
 class AddressesController extends Controller
 {
@@ -17,7 +18,7 @@ class AddressesController extends Controller
     {
         $addresses = Address::cursorPaginate(50);
 
-        return response(['status' => 'success','data' => $addresses]);
+        return response(['status' => 'success', 'data' => $addresses]);
     }
 
     /**
@@ -28,11 +29,16 @@ class AddressesController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate(Address::$rules, Address::$messages);
+        // Valida se os campos obrigatórios foram informados
+        try {
+            $request->validate(Address::$rules, Address::$messages);
+        } catch (ValidationException $e) {
+            return response(['status' => 'error', 'message' => 'Erro de validação', 'errors' => $e->errors()], 422);
+        }
 
         $address = Address::create($request->all());
 
-        return response(['status' => 'success', 'data' => $address], 201);
+        return response(['status' => 'success', 'data' => $address, 'message' => 'Endereço cadastrado com sucesso!'], 201);
     }
 
     /**
@@ -44,13 +50,20 @@ class AddressesController extends Controller
      */
     public function update(Request $request, $id)
     {
+
+        // Valida se o endereço existe na base de dados
         try {
             $address = Address::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             return response(['status' => 'error', 'message' => 'Endereço não encontrado'], 404);
         }
 
-        $request->validate(Address::$rules, Address::$messages);
+        // Valida se os campos obrigatórios foram informados
+        try {
+            $request->validate(Address::$rules, Address::$messages);
+        } catch (ValidationException $e) {
+            return response(['status' => 'error', 'message' => 'Erro de validação', 'errors' => $e->errors()], 422);
+        }
 
         $address->update($request->all());
 
@@ -73,6 +86,6 @@ class AddressesController extends Controller
 
         $address->delete();
 
-        return response(['status' => 'success', 'message' => 'Endereço excluído com sucesso'], 204);
+        return response(null, 204)->header('X-Status-Message', 'Endereço excluído com sucesso');
     }
 }
