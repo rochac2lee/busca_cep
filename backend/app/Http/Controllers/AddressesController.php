@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ViaCep\ViaCep;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Models\Address;
@@ -19,6 +20,49 @@ class AddressesController extends Controller
         $addresses = Address::cursorPaginate(50);
 
         return response(['status' => 'success', 'data' => $addresses]);
+    }
+
+    /**
+     * Display a listing of the searched resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function search_cep(Request $request, $cep)
+    {
+        $viacep = new ViaCep();
+
+        // Verifica se o CEP possui o formato válido
+        if (!preg_match('/^\d{5}-\d{3}$/', $cep)) {
+            return response(['status' => 'error', 'message' => 'Formato de CEP inválido. Use conforme o exemplo: 83215-360'], 400);
+        }
+
+        // Tente encontrar o endereço localmente
+        $localAddress = Address::where('zip_code', $cep)->first();
+
+        if ($localAddress) {
+            return response(['status' => 'success', 'data' => $localAddress], 200);
+        } else {
+            
+            // Se não encontrado localmente, tente obter o endereço externo
+            $externalAddress = $viacep->getAddress($cep);
+
+            if ($externalAddress === false) {
+                return response(['status' => 'error', 'message' => 'Endereço não encontrado!'], 404);
+            }
+
+            // Cadastra o endereço normalizado localmente
+            $address = new Address();
+            $address->zip_code = $externalAddress->cep;
+            $address->street = $externalAddress->logradouro;
+            $address->complement = $externalAddress->complemento;
+            $address->district = $externalAddress->bairro;
+            $address->city = $externalAddress->localidade;
+            $address->uf = $externalAddress->uf;
+            $address->save();
+
+            return response(['status' => 'success', 'data' => $address], 200);
+        }
     }
 
     /**
