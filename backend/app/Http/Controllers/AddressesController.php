@@ -22,6 +22,30 @@ class AddressesController extends Controller
     }
 
     /**
+     * Display a listing of the searched resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $results = Address::where(function ($queryBuilder) use ($query) {
+            $queryBuilder->where('zip_code', 'LIKE', "%$query%")
+                ->orWhere('street', 'LIKE', "%$query%")
+                ->orWhere('number', 'LIKE', "%$query%")
+                ->orWhere('complement', 'LIKE', "%$query%")
+                ->orWhere('district', 'LIKE', "%$query%")
+                ->orWhere('city', 'LIKE', "%$query%")
+                ->orWhere('uf', 'LIKE', "%$query%");
+        })->get();
+
+        return response(['status' => 'success', 'data' => $results]);
+    }
+
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
